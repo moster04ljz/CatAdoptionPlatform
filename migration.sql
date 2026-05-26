@@ -1,0 +1,16 @@
+-- ===== 数据库迁移脚本 =====
+-- 执行前请先备份！
+-- 
+-- 1. 给 user 表增加密码版本标记（已加密的密码以 $2a$ 开头）
+-- 2. 将现有明文密码通过应用启动时自动迁移
+
+-- 没有需要手动执行的 SQL
+-- BCrypt 密码迁移逻辑已内置在 UserService 中：
+--   - 登录时：先尝试 BCrypt 匹配，失败则尝试明文比对，明文匹配成功后自动升级为 BCrypt
+--
+-- 如果需要手动重置管理员密码，使用以下 SQL（Java BCrypt 生成的哈希值）：
+-- UPDATE user SET password = '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH' WHERE username = 'admin';
+-- 对应明文密码: 123456
+-- 
+-- 实际使用时，请在 Java 中运行以下代码生成正确的 BCrypt 哈希值：
+--   new BCryptPasswordEncoder().encode("你的密码")
