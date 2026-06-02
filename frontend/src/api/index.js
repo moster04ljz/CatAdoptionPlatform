@@ -23,7 +23,6 @@ api.interceptors.response.use(
       if (status === 401) {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
-        // 如果不在登录页，跳转到登录页
         if (window.location.hash !== '#/login') {
           window.location.hash = '#/login'
         }
@@ -34,8 +33,8 @@ api.interceptors.response.use(
 )
 
 // ======== 猫咪相关 ========
-export function getCatList() {
-  return api.get('/cat/list')
+export function getCatList(search) {
+  return api.get('/cat/list', { params: { search } })
 }
 
 export function getCatAdminAll() {
@@ -50,20 +49,12 @@ export function getCatAdoption(page = 1, size = 20) {
   return api.get('/cat/adoption', { params: { page, size } })
 }
 
-export function getCatMarket(page = 1, size = 20) {
-  return api.get('/cat/market', { params: { page, size } })
-}
-
 export function getCatById(id) {
   return api.get(`/cat/${id}`)
 }
 
 export function getMyCats(userId) {
   return api.get('/cat/my', { params: { userId } })
-}
-
-export function getPendingCats() {
-  return api.get('/cat/pending')
 }
 
 export function addCat(data) {
@@ -146,9 +137,57 @@ export function getProductById(id) {
   return api.get(`/product/${id}`)
 }
 
+// 别名
+export const getProductDetail = getProductById
+
+export function addProduct(data) {
+  return api.post('/product/add', data)
+}
+
+export function updateProduct(data) {
+  return api.put('/product/update', data)
+}
+
+export function deleteProduct(id) {
+  return api.delete(`/product/${id}`)
+}
+
 // ======== 轮播图 ========
 export function getCarousels() {
   return api.get('/carousel/active')
+}
+
+export function getCarouselList() {
+  return api.get('/carousel/list')
+}
+
+export function addCarousel(data) {
+  return api.post('/carousel/add', data)
+}
+
+export function updateCarousel(data) {
+  return api.put('/carousel/update', data)
+}
+
+export function deleteCarousel(id) {
+  return api.delete(`/carousel/${id}`)
+}
+
+// ======== 私信相关 ========
+export function getConversations() {
+  return api.get('/message/conversations')
+}
+
+export function getChatMessages(otherUserId) {
+  return api.get(`/message/chat/${otherUserId}`)
+}
+
+export function getUnreadMessages() {
+  return api.get('/message/unread')
+}
+
+export function sendMessage(data) {
+  return api.post('/message/send', data)
 }
 
 // ======== 文件上传 ========

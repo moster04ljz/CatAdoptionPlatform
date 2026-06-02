@@ -6,9 +6,12 @@ import CatDetail from '../views/CatDetail.vue'
 import MyAdoptions from '../views/MyAdoptions.vue'
 import Profile from '../views/Profile.vue'
 import Admin from '../views/Admin.vue'
+import AdoptionReview from '../views/AdoptionReview.vue'
 import Market from '../views/Market.vue'
 import Shop from '../views/Shop.vue'
 import AddCat from '../views/AddCat.vue'
+import Chat from '../views/Chat.vue'
+import ProductDetail from '../views/ProductDetail.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -21,7 +24,10 @@ const routes = [
   { path: '/my-cats', name: 'MyCats', component: AddCat, meta: { requiresAuth: true, isMyCats: true } },
   { path: '/my-adoptions', name: 'MyAdoptions', component: MyAdoptions, meta: { requiresAuth: true } },
   { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
-  { path: '/admin', name: 'Admin', component: Admin, meta: { requiresAuth: true, requiresAdmin: true } }
+  { path: '/chat', name: 'Chat', component: Chat, meta: { requiresAuth: true } },
+  { path: '/product/:id', name: 'ProductDetail', component: ProductDetail },
+  { path: '/admin', name: 'Admin', component: Admin, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/adoption-review', name: 'AdoptionReview', component: AdoptionReview, meta: { requiresAuth: true, requiresAdmin: true } }
 ]
 
 const router = createRouter({

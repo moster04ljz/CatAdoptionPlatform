@@ -13,6 +13,7 @@ public class Product {
     private BigDecimal price;
     private Integer stock;
     private String imageUrl;
+    private String imageUrls;  // JSON数组，多图URL列表，最多8张
     private String description;
     private String status;
     private LocalDateTime createTime;

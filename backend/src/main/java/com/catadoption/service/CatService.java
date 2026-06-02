@@ -57,7 +57,7 @@ public class CatService {
         } else {
             cat.setStatus("pending_review");
         }
-        cat.setCategory(cat.getCategory() != null ? cat.getCategory() : "adoption");
+        cat.setCategory("adoption");
         return catDao.insert(cat) > 0;
     }
 
@@ -81,7 +81,7 @@ public class CatService {
     }
 
     /**
-     * 删除猫咪（带权限校验）
+     * 删除猫咪（带权限校验，级联删除关联评论和领养申请）
      */
     public boolean deleteCat(Long id, Long currentUserId, String role) {
         Cat cat = catDao.findById(id);
@@ -89,6 +89,8 @@ public class CatService {
         if (!"admin".equals(role) && !cat.getAddUserId().equals(currentUserId)) {
             return false;
         }
+        catDao.deleteCommentsByCatId(id);
+        catDao.deleteAdoptionsByCatId(id);
         return catDao.delete(id) > 0;
     }
 }

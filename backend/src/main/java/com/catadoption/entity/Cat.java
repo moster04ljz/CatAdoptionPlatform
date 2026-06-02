@@ -25,4 +25,9 @@ public class Cat {
     private String location;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+
+    // 扩展字段（查询时JOIN）
+    private String addUserName;
+    private String addUserAvatar;
+    private String addUserRole;
 }

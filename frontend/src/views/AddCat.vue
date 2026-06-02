@@ -8,8 +8,8 @@
     <div class="container">
       <el-card>
         <h2>{{ editing ? '编辑猫咪信息' : '🐱 发布猫咪' }}</h2>
-        <p class="tip" v-if="isAdmin">发布猫咪（管理员直接上架）</p>
-        <p class="tip" v-else>提交后需要管理员审核，审核通过后将上架到领养队列</p>
+        <p class="tip" v-if="isAdmin">发布猫咪(管理员直接上架)</p>
+        <p class="tip" v-else>提交后需要管理员审核,审核通过后将上架到领养队列</p>
 
         <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
           <el-form-item label="昵称" prop="name">
@@ -31,14 +31,6 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
-              <el-form-item label="类型" prop="category">
-                <el-radio-group v-model="form.category">
-                  <el-radio label="adoption">免费领养</el-radio>
-                  <el-radio label="market">商城出售</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-col>
           </el-row>
 
           <el-row :gutter="20">
@@ -57,20 +49,15 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="毛色" prop="color">
-                <el-input v-model="form.color" placeholder="如：橘色、白色" />
+                <el-input v-model="form.color" placeholder="如:橘色、白色" />
               </el-form-item>
             </el-col>
           </el-row>
 
           <el-row :gutter="20">
             <el-col :span="12">
-              <el-form-item label="价格" prop="price" v-if="form.category === 'market'">
-                <el-input-number v-model="form.price" :min="0" :step="50" style="width: 100%" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
               <el-form-item label="所在地" prop="location">
-                <el-input v-model="form.location" placeholder="如：北京" />
+                <el-input v-model="form.location" placeholder="如:北京" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -87,7 +74,7 @@
               <img v-if="form.imageUrl" :src="form.imageUrl" class="avatar-preview" @error="imgError" />
               <el-icon v-else class="upload-icon"><Plus /></el-icon>
             </el-upload>
-            <div class="upload-tip">点击上传猫咪照片，支持 jpg/png 格式</div>
+            <div class="upload-tip">点击上传猫咪照片,支持 jpg/png 格式</div>
           </el-form-item>
 
           <el-form-item label="健康状况" prop="healthStatus">
@@ -223,7 +210,7 @@ const submit = async () => {
 
   loading.value = false
   if (res.data.code === 200) {
-    ElMessage.success(editing.value ? '更新成功' : (user.role === 'admin' ? '发布成功' : '提交成功，等待审核'))
+    ElMessage.success(editing.value ? '更新成功' : (user.role === 'admin' ? '发布成功' : '提交成功,等待审核'))
     if (editing.value) editing.value = false
     loadMyCats()
   }

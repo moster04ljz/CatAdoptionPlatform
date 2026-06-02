@@ -111,7 +111,9 @@ const saveProfile = async () => {
   const res = await updateUser(form.value)
   if (res.data.code === 200) {
     ElMessage.success('保存成功')
-    localStorage.setItem('user', JSON.stringify({ ...user.value, ...form.value }))
+    const updated = { ...user.value, nickname: form.value.nickname, email: form.value.email, phone: form.value.phone, avatar: form.value.avatar }
+    localStorage.setItem('user', JSON.stringify(updated))
+    user.value = updated
   }
 }
 
