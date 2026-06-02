@@ -4,15 +4,15 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class Message {
+public class Conversation {
     private Long id;
-    private Long conversationId;
-    private Long senderId;
-    private Long receiverId;
+    private Long user1Id;
+    private Long user2Id;
     private Long catId;
-    private String content;
-    private Boolean isRead;
+    private String lastMessageContent;
+    private LocalDateTime lastMessageTime;
     private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 
     private String senderName;
     private String senderAvatar;

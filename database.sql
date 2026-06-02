@@ -31,6 +31,39 @@ CREATE TABLE IF NOT EXISTS user (
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 私信会话表
+CREATE TABLE IF NOT EXISTS conversation (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user1_id BIGINT NOT NULL COMMENT '发起方用户ID',
+    user2_id BIGINT NOT NULL COMMENT '接收方用户ID',
+    cat_id BIGINT DEFAULT NULL COMMENT '关联猫咪ID',
+    last_message_content TEXT COMMENT '最后一条消息内容',
+    last_message_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '最后消息时间',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_conversation_users (user1_id, user2_id, cat_id),
+    FOREIGN KEY (user1_id) REFERENCES user(id),
+    FOREIGN KEY (user2_id) REFERENCES user(id),
+    FOREIGN KEY (cat_id) REFERENCES cat(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 私信消息表
+CREATE TABLE IF NOT EXISTS message (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    conversation_id BIGINT NOT NULL COMMENT '会话ID',
+    sender_id BIGINT NOT NULL COMMENT '发送者ID',
+    receiver_id BIGINT NOT NULL COMMENT '接收者ID',
+    cat_id BIGINT DEFAULT NULL COMMENT '关联猫咪ID',
+    content TEXT NOT NULL COMMENT '消息内容',
+    is_read TINYINT(1) DEFAULT 0 COMMENT '是否已读',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (conversation_id) REFERENCES conversation(id),
+    FOREIGN KEY (sender_id) REFERENCES user(id),
+    FOREIGN KEY (receiver_id) REFERENCES user(id),
+    FOREIGN KEY (cat_id) REFERENCES cat(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- 领养申请表
 CREATE TABLE IF NOT EXISTS adoption (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,

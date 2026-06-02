@@ -66,7 +66,7 @@
         </div>
         <div class="comment-list">
           <div v-for="comment in comments" :key="comment.id" class="comment-item">
-            <el-avatar>{{ comment.nickname?.[0] || 'U' }}</el-avatar>
+            <el-avatar :src="comment.avatar">{{ comment.nickname?.[0] || 'U' }}</el-avatar>
             <div class="comment-content">
               <div class="comment-header">
                 <span class="username">{{ comment.nickname }}</span>

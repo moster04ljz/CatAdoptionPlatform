@@ -6,14 +6,15 @@
       <!-- 会话列表 -->
       <div class="conversation-list">
         <div v-for="conv in conversations" :key="conv.id" class="conv-item"
-             :class="{ active: currentChat && currentChat.otherId === getOtherId(conv) }"
+             :class="{ active: currentChat && currentChat.id === conv.id }"
              @click="openChat(conv)">
           <el-avatar :size="40" :src="getOtherAvatar(conv)">{{ getOtherName(conv)?.[0] }}</el-avatar>
           <div class="conv-info">
             <div class="conv-header">
               <span class="conv-name">{{ getOtherName(conv) }}</span>
             </div>
-            <div class="conv-last" v-if="conv.catName">关于：{{ conv.catName }}</div>
+            <div class="conv-last" v-if="conv.lastMessageContent">{{ conv.lastMessageContent }}</div>
+            <div class="conv-last" v-else-if="conv.catName">关于：{{ conv.catName }}</div>
           </div>
         </div>
         <el-empty v-if="conversations.length === 0" description="暂无对话" :image-size="60" />
@@ -52,7 +53,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getConversations, getChatMessages, sendMessage, getUserInfo } from '../api'
+import { getConversations, getConversation, getChatMessages, sendMessage } from '../api'
 import { ElMessage } from 'element-plus'
 
 const route = useRoute()
@@ -69,78 +70,72 @@ const loadUser = () => {
 }
 
 const getOtherId = (conv) => {
-  return conv.senderId === user.value.id ? conv.receiverId : conv.senderId
+  return conv.user1Id === user.value.id ? conv.user2Id : conv.user1Id
 }
 
 const getOtherName = (conv) => {
-  return conv.senderId === user.value.id ? (conv.receiverName || '用户') : (conv.senderName || '用户')
+  return conv.user1Id === user.value.id ? (conv.receiverName || '用户') : (conv.senderName || '用户')
 }
 
 const getOtherAvatar = (conv) => {
-  return conv.senderId === user.value.id ? conv.receiverAvatar : conv.senderAvatar
+  return conv.user1Id === user.value.id ? conv.receiverAvatar : conv.senderAvatar
 }
 
 const loadConversations = async () => {
   try {
     const res = await getConversations()
     if (res.data.code === 200) {
-      conversations.value = res.data.data
+      conversations.value = res.data.data || []
+      // URL 带参数，自动打开对应对话或创建新会话
       if (route.query.otherId && !currentChat.value) {
         const targetId = Number(route.query.otherId)
-        const conv = conversations.value.find(c => getOtherId(c) === targetId)
+        const conv = conversations.value.find(c => getOtherId(c) === targetId && (route.query.catId ? c.catId === Number(route.query.catId) : true))
         if (conv) {
           openChat(conv)
         } else {
-          await createTempChat(targetId, route.query.catId ? Number(route.query.catId) : null, route.query.catName || '')
+          await createAndOpenChat(targetId, route.query.catId ? Number(route.query.catId) : null)
         }
       }
     }
-  } catch (e) { /* ignore */ }
+  } catch (e) { console.error('loadConversations error', e) }
 }
 
-const createTempChat = async (otherId, catId, catName) => {
-  let otherName = route.query.otherName || ''
-  let otherAvatar = route.query.otherAvatar || ''
-
-  if (!otherName || !otherAvatar) {
-    try {
-      const res = await getUserInfo(otherId)
-      if (res.data.code === 200 && res.data.data) {
-        otherName = otherName || res.data.data.nickname || res.data.data.username || '用户'
-        otherAvatar = otherAvatar || res.data.data.avatar || ''
-      }
-    } catch (e) { /* ignore */ }
-  }
-
-  currentChat.value = { otherId, otherName: otherName || '用户', otherAvatar, catId, catName }
+const createAndOpenChat = async (otherId, catId) => {
   try {
-    await loadMessages(otherId)
+    const res = await getConversation(otherId, catId)
+    if (res.data.code === 200 && res.data.data) {
+      const conv = res.data.data
+      // 补充到会话列表
+      conversations.value.unshift(conv)
+      openChat(conv)
+    }
   } catch (e) {
-    // 新会话可能没有消息，静默处理
+    console.error('createAndOpenChat error', e)
   }
 }
 
 const openChat = async (conv) => {
   const otherId = getOtherId(conv)
   currentChat.value = {
+    id: conv.id,
     otherId,
     otherName: getOtherName(conv),
     otherAvatar: getOtherAvatar(conv),
     catId: conv.catId,
     catName: conv.catName
   }
-  await loadMessages(otherId)
+  await loadMessages(conv.id)
 }
 
-const loadMessages = async (otherUserId) => {
+const loadMessages = async (conversationId) => {
   try {
-    const res = await getChatMessages(otherUserId)
+    const res = await getChatMessages(conversationId)
     if (res.data.code === 200) {
       messages.value = res.data.data || []
       await nextTick()
       scrollToBottom()
     }
-  } catch (e) { /* ignore */ }
+  } catch (e) { console.error('loadMessages error', e) }
 }
 
 const sendMsg = async () => {
@@ -153,14 +148,21 @@ const sendMsg = async () => {
     })
     if (res.data.code === 200) {
       newMessage.value = ''
-      await loadMessages(currentChat.value.otherId)
+      // 重新加载消息
+      await loadMessages(currentChat.value.id)
+      // 刷新会话列表（lastMessageContent 更新）
       const convRes = await getConversations()
-      if (convRes.data.code === 200) conversations.value = convRes.data.data
-    } else {
-      ElMessage.error(res.data.message || '发送失败')
+      if (convRes.data.code === 200) conversations.value = convRes.data.data || []
+      // 更新 currentChat 的引用
+      const updated = conversations.value.find(c => c.id === currentChat.value.id)
+      if (updated) {
+        currentChat.value.otherName = getOtherName(updated)
+        currentChat.value.otherAvatar = getOtherAvatar(updated)
+        currentChat.value.catName = updated.catName
+      }
     }
   } catch (e) {
-    ElMessage.error(e?.response?.data?.message || '发送失败')
+    ElMessage.error('发送失败')
   }
 }
 

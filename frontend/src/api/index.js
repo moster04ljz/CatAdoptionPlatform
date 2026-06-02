@@ -137,7 +137,6 @@ export function getProductById(id) {
   return api.get(`/product/${id}`)
 }
 
-// 别名
 export const getProductDetail = getProductById
 
 export function addProduct(data) {
@@ -178,8 +177,12 @@ export function getConversations() {
   return api.get('/message/conversations')
 }
 
-export function getChatMessages(otherUserId) {
-  return api.get(`/message/chat/${otherUserId}`)
+export function getConversation(otherUserId, catId = null) {
+  return api.get('/message/conversation', { params: { otherUserId, catId } })
+}
+
+export function getChatMessages(conversationId) {
+  return api.get(`/message/${conversationId}`)
 }
 
 export function getUnreadMessages() {
